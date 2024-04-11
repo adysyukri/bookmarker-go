@@ -29,10 +29,9 @@
           ];
 
           shellHook = ''
-            echo "development environment start.."
-            make css-watch
+            echo "Development environment start.."
             echo "To run development server, simply execute: "
-            echo "make histo-dev"
+            echo "make run"
           '';
         };
       });
