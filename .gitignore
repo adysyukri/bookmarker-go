@@ -5,4 +5,5 @@ temp
 
 # generated files
 **/*_templ.go
+public/css/style.css
 
