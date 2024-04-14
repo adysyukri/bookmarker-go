@@ -1,0 +1,34 @@
+package components
+
+const (
+	BtnNeutral = "btn-neutral"
+	BtnPrimary = "btn-primary"
+	BtnError   = "btn-error"
+	BtnSuccess = "btn-success"
+	BtnWarning = "btn-warning"
+)
+
+templ Button(btnClass string, btnText string, btnType string) {
+	switch btnClass {
+		case BtnNeutral:
+			<button type={ btnType } class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide transition-colors duration-100 bg-white border-2 rounded-md text-neutral-600 hover:text-white border-neutral-600 hover:bg-neutral-600">
+				{ btnText }
+			</button>
+		case BtnPrimary:
+			<button type={ btnType } class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-blue-600 transition-colors duration-100 bg-white border-2 border-blue-600 rounded-md hover:text-white hover:bg-blue-600">
+				{ btnText }
+			</button>
+		case BtnError:
+			<button type={ btnType } class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-red-600 transition-colors duration-100 bg-white border-2 border-red-600 rounded-md hover:text-white hover:bg-red-600">
+				{ btnText }
+			</button>
+		case BtnSuccess:
+			<button type={ btnType } class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-green-600 transition-colors duration-100 bg-white border-2 border-green-600 rounded-md hover:text-white hover:bg-green-600">
+				{ btnText }
+			</button>
+		case BtnWarning:
+			<button type={ btnType } class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium tracking-wide text-yellow-600 transition-colors duration-100 bg-white border-2 border-yellow-500 rounded-md hover:text-white hover:bg-yellow-500">
+				{ btnText }
+			</button>
+	}
+}
