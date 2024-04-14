@@ -3,4 +3,4 @@ tmp
 temp
 
 # generated files
-*_templ.go
+**/*_templ.go
