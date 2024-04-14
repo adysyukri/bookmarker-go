@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/adysyukri/bookemarker-go/page"
@@ -11,5 +12,6 @@ func main() {
 		page.Home().Render(r.Context(), w)
 	})
 
+	fmt.Println("Listening on localhost:3000")
 	http.ListenAndServe(":3000", nil)
 }
