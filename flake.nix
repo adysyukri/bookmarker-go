@@ -24,12 +24,15 @@
           nativeBuildInputs = with pkgs; [
             go_1_22
             nodejs_21
-            air
-            templ
           ];
 
           shellHook = ''
             echo "Development environment start.."
+            echo "Installing lib dependency..."
+            echo "air: "
+            go install github.com/cosmtrek/air@latest
+            echo "templ: "
+            go install github.com/a-h/templ/cmd/templ@latest
             echo "To run development server, simply execute: "
             echo "make run"
           '';
