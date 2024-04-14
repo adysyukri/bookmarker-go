@@ -1,6 +1,8 @@
 node_modules
 tmp
 temp
+.air.toml
 
 # generated files
 **/*_templ.go
+
