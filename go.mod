@@ -12,6 +12,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/rosedblabs/rosedb/v2 v2.3.6 // indirect
 	github.com/rosedblabs/wal v1.3.6-0.20230924022528-3202245af020 // indirect
+	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 )
