@@ -13,7 +13,8 @@ templ Home() {
 						@components.Input("text", "Book Author", "author")
 						@components.Input("number", "Pages Total", "total")
 						@components.Input("number", "Pages Read", "read")
-						@components.Button(components.BtnPrimary, "Save", "submit")
+						@components.Button(components.BtnPrimary, "Save", "submit", templ.Attributes{})
+						@components.Button(components.BtnNeutral, "Close", "button", templ.Attributes{"@click": "modalOpen=false"})
 					</form>
 				}
 			</nav>
