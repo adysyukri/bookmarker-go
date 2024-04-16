@@ -2,6 +2,7 @@ package bookmark
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/a-h/templ"
 	"github.com/adysyukri/bookemarker-go/pkg/sqlite"
@@ -18,9 +19,11 @@ func NewService(db sqlite.Client) Service {
 }
 
 func (s *service) Add(ctx context.Context, bp *BookmarkParams) (templ.Component, error) {
-	q := `
-	INSERT INTO bookmark (id, title, author, total, read, created_at) VALUES (?, ?, ?, ?);
-	`
+	q := fmt.Sprintf(
+		"INSERT INTO %s (id, title, author, total, read, created_at) VALUES (?, ?, ?, ?);",
+		BookmarkTableName,
+	)
+
 	bm := NewBookMark(bp)
 	data := []any{
 		bm.ID,

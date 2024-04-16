@@ -6,6 +6,10 @@ import (
 	"github.com/segmentio/ksuid"
 )
 
+const (
+	BookmarkTableName = "bookmarks"
+)
+
 // table: bookmarks
 type Bookmark struct {
 	ID     string `json:"id,omitempty"`
