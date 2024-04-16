@@ -16,3 +16,8 @@ func NewRepo(db *sql.DB) *Client {
 func (c *Client) Close(ctx context.Context) error {
 	return c.svc.Close()
 }
+
+func (c *Client) Add(ctx context.Context, query string, data ...any) error {
+	_, err := c.svc.ExecContext(ctx, query, data...)
+	return err
+}
