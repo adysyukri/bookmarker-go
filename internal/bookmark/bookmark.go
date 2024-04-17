@@ -34,6 +34,8 @@ func NewBookMark(bp *BookmarkParams) *Bookmark {
 	}
 }
 
+type BookmarkList []*Bookmark
+
 type BookmarkParams struct {
 	Title  string `json:"title,omitempty"`
 	Author string `json:"author,omitempty"`
