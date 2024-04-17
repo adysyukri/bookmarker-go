@@ -1,7 +1,9 @@
 package components
 
+import "fmt"
+
 templ Card(title string, btn templ.Component, id string) {
-	<div id={ id } class="max-w-sm bg-white border rounded-lg shadow-sm p-7 border-neutral-200/60">
+	<div id={ fmt.Sprintf("card-%s", id) } class="max-w-sm bg-white border rounded-lg shadow-sm p-7 border-neutral-200/60">
 		<a href="#_" class="block mb-3">
 			<h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">Card Title</h5>
 		</a>
