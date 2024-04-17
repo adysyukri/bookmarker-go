@@ -1,0 +1,32 @@
+package bookmark
+
+import (
+	"github.com/adysyukri/bookemarker-go/components"
+	"github.com/adysyukri/bookemarker-go/page"
+)
+
+templ Home(bml BookmarkList) {
+	@page.Base() {
+		<div class="container mx-auto flex justify-between py-8">
+			<!-- Left Column (Navigation) -->
+			<nav class="w-1/4 bg-gray-200 p-4">
+				@components.Modal("Add", "Add New Book") {
+					<form action="" method="post">
+						@components.Input("text", "Book Title", "title")
+						@components.Input("text", "Book Author", "author")
+						@components.Input("number", "Pages Total", "total")
+						@components.Input("number", "Pages Read", "read")
+						@components.Button(components.BtnPrimary, "Save", "submit", templ.Attributes{})
+						@components.Button(components.BtnNeutral, "Close", "button", templ.Attributes{"@click": "modalOpen=false"})
+					</form>
+				}
+			</nav>
+			<!-- Right Column (Content) -->
+			<main class="w-3/4 bg-white p-4 flex-col">
+				for _, bm := range bml {
+					@BookmarkCard(bm)
+				}
+			</main>
+		</div>
+	}
+}
