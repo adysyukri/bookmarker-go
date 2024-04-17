@@ -9,7 +9,7 @@ type Client struct {
 	svc *sql.DB
 }
 
-func NewRepo(db *sql.DB) *Client {
+func NewClient(db *sql.DB) *Client {
 	return &Client{db}
 }
 
