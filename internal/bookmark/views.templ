@@ -6,7 +6,7 @@ import (
 )
 
 templ BookmarkCard(bm *Bookmark) {
-	@components.Card(bm.Title, components.Button(components.BtnError, "Delete", "submit", templ.Attributes{})) {
+	@components.Card(bm.Title, components.Button(components.BtnError, "Delete", "submit", templ.Attributes{}), bm.ID) {
 		<p><strong>Author: </strong>{ bm.Author }</p>
 		<p><strong>Total Page: </strong>{ fmt.Sprint(bm.Total) }</p>
 		<p><strong>Pages Read: </strong>fmt.Sprint(bm.Read)</p>

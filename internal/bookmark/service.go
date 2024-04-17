@@ -41,3 +41,51 @@ func (s *service) Add(ctx context.Context, bp *BookmarkParams) (templ.Component,
 
 	return BookmarkCard(bm), nil
 }
+
+func (s *service) Get(ctx context.Context) (templ.Component, error) {
+	q := fmt.Sprintf(
+		"SELECT id, title, author, total, read, created_at FROM %s;",
+		BookmarkTableName,
+	)
+
+	rows, err := s.db.Get(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var bml BookmarkList
+
+	for rows.Next() {
+		bm := new(Bookmark)
+
+		err := rows.Scan(
+			&bm.ID,
+			&bm.Title,
+			&bm.Author,
+			&bm.Total,
+			&bm.Read,
+			&bm.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		bml = append(bml, bm)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return Home(bml), nil
+}
+
+func (s *service) Delete(ctx context.Context, id string) error {
+	q := fmt.Sprintf(
+		"DELETE FROM %s WHERE id = ?;",
+		BookmarkTableName,
+	)
+
+	return s.db.Delete(ctx, q, id)
+}
