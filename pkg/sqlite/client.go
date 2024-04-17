@@ -21,3 +21,13 @@ func (c *Client) Add(ctx context.Context, query string, data ...any) error {
 	_, err := c.svc.ExecContext(ctx, query, data...)
 	return err
 }
+
+func (c *Client) Get(ctx context.Context, query string, data ...any) (*sql.Rows, error) {
+	rows, err := c.svc.QueryContext(ctx, query, data...)
+	return rows, err
+}
+
+func (c *Client) Delete(ctx context.Context, query string, data ...any) error {
+	_, err := c.svc.ExecContext(ctx, query, data...)
+	return err
+}
