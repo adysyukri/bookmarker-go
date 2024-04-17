@@ -11,12 +11,14 @@ templ Home(bml BookmarkList) {
 			<!-- Left Column (Navigation) -->
 			<nav class="w-1/4 bg-gray-200 p-4">
 				@components.Modal("Add", "Add New Book") {
-					<form action="" method="post">
+					<form hx-post="/add" hx-target="main" hx-swap="beforeend">
 						@components.Input("text", "Book Title", "title")
 						@components.Input("text", "Book Author", "author")
 						@components.Input("number", "Pages Total", "total")
 						@components.Input("number", "Pages Read", "read")
-						@components.Button(components.BtnPrimary, "Save", "submit", templ.Attributes{})
+						@components.Button(components.BtnPrimary, "Save", "submit", templ.Attributes{
+							"@click": "modalOpen = false",
+						})
 						@components.Button(components.BtnNeutral, "Close", "button", templ.Attributes{"@click": "modalOpen=false"})
 					</form>
 				}
