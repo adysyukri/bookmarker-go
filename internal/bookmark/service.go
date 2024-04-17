@@ -12,7 +12,11 @@ type service struct {
 	db sqlite.Client
 }
 
-type Service interface{}
+type Service interface {
+	Add(ctx context.Context, bp *BookmarkParams) (templ.Component, error)
+	Get(ctx context.Context) (templ.Component, error)
+	Delete(ctx context.Context, id string) error
+}
 
 func NewService(db sqlite.Client) Service {
 	return &service{db}
@@ -20,7 +24,7 @@ func NewService(db sqlite.Client) Service {
 
 func (s *service) Add(ctx context.Context, bp *BookmarkParams) (templ.Component, error) {
 	q := fmt.Sprintf(
-		"INSERT INTO %s (id, title, author, total, read, created_at) VALUES (?, ?, ?, ?);",
+		"INSERT INTO %s (id, title, author, total, read, created_at) VALUES (?, ?, ?, ?, ?, ?);",
 		BookmarkTableName,
 	)
 
