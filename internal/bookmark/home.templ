@@ -1,25 +1,25 @@
 package bookmark
 
 import (
-	"github.com/adysyukri/bookemarker-go/components"
-	"github.com/adysyukri/bookemarker-go/page"
+	"github.com/adysyukri/bookemarker-go/templates/elem"
+	"github.com/adysyukri/bookemarker-go/templates/layout"
 )
 
 templ Home(bml BookmarkList) {
-	@page.Base() {
+	@layout.Base() {
 		<div class="container mx-auto flex justify-between py-8">
 			<!-- Left Column (Navigation) -->
 			<nav class="w-1/4 bg-gray-200 p-4">
-				@components.Modal("Add", "Add New Book") {
+				@elem.Modal("Add", "Add New Book") {
 					<form hx-post="/add" hx-target="main" hx-swap="beforeend">
-						@components.Input("text", "Book Title", "title")
-						@components.Input("text", "Book Author", "author")
-						@components.Input("number", "Pages Total", "total")
-						@components.Input("number", "Pages Read", "read")
-						@components.Button(components.BtnPrimary, "Save", "submit", templ.Attributes{
+						@elem.Input("text", "Book Title", "title")
+						@elem.Input("text", "Book Author", "author")
+						@elem.Input("number", "Pages Total", "total")
+						@elem.Input("number", "Pages Read", "read")
+						@elem.Button(elem.BtnPrimary, "Save", "submit", templ.Attributes{
 							"@click": "modalOpen = false",
 						})
-						@components.Button(components.BtnNeutral, "Close", "button", templ.Attributes{"@click": "modalOpen=false"})
+						@elem.Button(elem.BtnNeutral, "Close", "button", templ.Attributes{"@click": "modalOpen=false"})
 					</form>
 				}
 			</nav>

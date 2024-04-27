@@ -1,12 +1,12 @@
 package bookmark
 
 import (
-	"github.com/adysyukri/bookemarker-go/components"
+	"github.com/adysyukri/bookemarker-go/templates/elem"
 	"fmt"
 )
 
 templ BookmarkCard(bm *Bookmark) {
-	@components.Card(bm.Title, components.Button(components.BtnError, "Delete", "submit", templ.Attributes{
+	@elem.Card(bm.Title, elem.Button(elem.BtnError, "Delete", "submit", templ.Attributes{
 		"hx-delete": fmt.Sprintf("/delete/%s", bm.ID),
 		"hx-swap":   "outerHTML",
 		"hx-target": fmt.Sprintf("#card-%s", bm.ID),
