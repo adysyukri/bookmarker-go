@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/adysyukri/bookemarker-go/internal/bookmark"
+	"github.com/adysyukri/bookemarker-go/internal/concurrent"
 	"github.com/adysyukri/bookemarker-go/pkg/sqlite"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -18,6 +19,7 @@ func main() {
 
 	dbClient := sqlite.NewClient(db)
 	svc := bookmark.NewService(*dbClient)
+	conSvc := concurrent.NewService()
 
 	http.HandleFunc("GET /home", func(w http.ResponseWriter, r *http.Request) {
 		t, err := svc.Get(r.Context())
@@ -73,6 +75,17 @@ func main() {
 		}
 
 		w.WriteHeader(http.StatusOK)
+	})
+
+	http.HandleFunc("GET /conc", func(w http.ResponseWriter, r *http.Request) {
+		t, err := conSvc.Page()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "error occurs: %s", err)
+			return
+		}
+
+		t.Render(r.Context(), w)
 	})
 
 	http.Handle("/static/",
