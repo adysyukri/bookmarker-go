@@ -47,6 +47,8 @@ go install github.com/cosmtrek/air@latest
 go install github.com/a-h/templ/cmd/templ@latest
 ```
 
+Copy `.air.toml.example` file to `.air.toml`
+
 Then simply run `make run`
 
 > Server by default will run on port 3000
