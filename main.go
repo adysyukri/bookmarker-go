@@ -88,7 +88,7 @@ func main() {
 }
 
 func InitTable() error {
-	defer db.Close()
+//	defer db.Close()
 
 	sqlStmt := `
 	CREATE TABLE IF NOT EXISTS bookmarks (
