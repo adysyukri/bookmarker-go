@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -15,7 +16,10 @@ var db, _ = sql.Open("sqlite3", "./tmp/db.db")
 
 func main() {
 	defer db.Close()
-
+	err := InitTable()
+	if err != nil {
+		log.Fatalln("error init table")
+	}
 	dbClient := sqlite.NewClient(db)
 	svc := bookmark.NewService(*dbClient)
 
