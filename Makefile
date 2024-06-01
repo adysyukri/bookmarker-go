@@ -1,5 +1,5 @@
 css-watch:
-	npx tailwindcss -i public/css/input.css -o public/css/style.css --watch
+	npx tailwindcss -i public/css/input.css -o public/css/style.css --watch=always &
 css:
 	npx tailwindcss -i public/css/input.css -o public/css/style.css --minify
 

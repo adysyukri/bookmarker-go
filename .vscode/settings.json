@@ -1,0 +1,25 @@
+{
+    "extensions.experimental.affinity": {
+      "asvetliakov.vscode-neovim": 1
+    },
+    "workbench.iconTheme": "material-icon-theme",
+    "go.gopath": "",
+    "go.toolsGopath": "",
+    "gopls": {},
+    "[templ]": {
+      "editor.defaultFormatter": "a-h.templ"
+    },
+    "tailwindCSS.includeLanguages": {
+      "templ": "html"
+    },
+    "emmet.includeLanguages": {
+      "templ": "html"
+    },
+    "go.buildFlags": ["-v"],
+    "go.alternateTools": {},
+    "editor.formatOnSave": true,
+    "svelte.enable-ts-plugin": true,
+    "go.toolsManagement.autoUpdate": true,
+    "git.enableCommitSigning": true
+  }
+  
