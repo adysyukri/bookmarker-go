@@ -30,7 +30,7 @@
             echo "Development environment start.."
             echo "Installing lib dependency..."
             echo "air: "
-            go install github.com/cosmtrek/air@latest
+            go install github.com/air-verse/air@latest
             echo "templ: "
             go install github.com/a-h/templ/cmd/templ@latest
             echo "To run development server, simply execute: "
