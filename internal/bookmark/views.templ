@@ -16,7 +16,7 @@ templ BookmarkCard(bm *Bookmark) {
 		"hx-swap":    "outerHTML",
 		"hx-target":  fmt.Sprintf("#card-%s", bm.ID),
 		"hx-trigger": "click",
-		"class":      "hover:cursor-pointer",
+		"class":      "hover:cursor-pointer w-20 h-20",
 	})) {
 		<p><strong>Author: </strong>{ bm.Author }</p>
 		<p><strong>Total Page: </strong>{ fmt.Sprint(bm.Total) }</p>

@@ -21,6 +21,19 @@ type Bookmark struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
+type BookmarkRowView struct {
+	ID     string `json:"id,omitempty"`
+	Title  string `json:"title,omitempty"`
+	Author string `json:"author,omitempty"`
+}
+
+func (br *BookmarkRowView) Map(b *Bookmark) {
+
+	br.Author = b.Author
+	br.ID = b.ID
+	br.Title = b.Title
+}
+
 func NewBookMark(bp *BookmarkParams) *Bookmark {
 	ksuid := ksuid.New()
 

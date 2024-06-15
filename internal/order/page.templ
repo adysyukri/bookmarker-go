@@ -1,0 +1,13 @@
+package order
+
+import "github.com/adysyukri/bookemarker-go/templates/layout"
+
+templ Page() {
+	@layout.Base() {
+		<section data-page="order">
+			<h1>Order form page</h1>
+			<hr/>
+			@tableData()
+		</section>
+	}
+}

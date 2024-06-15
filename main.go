@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/adysyukri/bookemarker-go/internal/bookmark"
+	"github.com/adysyukri/bookemarker-go/internal/order"
 	"github.com/adysyukri/bookemarker-go/pkg/sqlite"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -22,6 +23,7 @@ func main() {
 	}
 	dbClient := sqlite.NewClient(db)
 	svc := bookmark.NewService(*dbClient)
+	orderSvc := order.NewService(*dbClient)
 
 	http.HandleFunc("GET /home", func(w http.ResponseWriter, r *http.Request) {
 		t, err := svc.Get(r.Context())
@@ -79,6 +81,17 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 	})
 
+	http.HandleFunc("GET /order", func(w http.ResponseWriter, r *http.Request) {
+		t, err := orderSvc.Page(r.Context())
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "error occurs: %s", err)
+			return
+		}
+
+		t.Render(r.Context(), w)
+	})
+
 	http.Handle("/static/",
 		http.StripPrefix("/static/",
 			http.FileServer(http.Dir("public/"))))
@@ -88,7 +101,7 @@ func main() {
 }
 
 func InitTable() error {
-//	defer db.Close()
+	//	defer db.Close()
 
 	sqlStmt := `
 	CREATE TABLE IF NOT EXISTS bookmarks (
