@@ -3,7 +3,7 @@ module github.com/adysyukri/bookemarker-go
 go 1.22.1
 
 require (
-	github.com/a-h/templ v0.2.707
+	github.com/a-h/templ v0.2.731
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/segmentio/ksuid v1.0.4
 )
