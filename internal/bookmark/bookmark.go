@@ -3,11 +3,12 @@ package bookmark
 import (
 	"time"
 
+	"github.com/scylladb/gocqlx/v2/table"
 	"github.com/segmentio/ksuid"
 )
 
 const (
-	BookmarkTableName = "bookmarks"
+	BookmarkTableName = "book.bookmarks"
 )
 
 // table: bookmarks
@@ -20,6 +21,15 @@ type Bookmark struct {
 
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
+
+var bookmarkMetadata = table.Metadata{
+	Name:    BookmarkTableName,
+	Columns: []string{"id", "title", "author", "total", "read", "created_at"},
+	PartKey: []string{"id"},
+	SortKey: []string{"created_at"},
+}
+
+var bookmarkTable = table.New(bookmarkMetadata)
 
 func NewBookMark(bp *BookmarkParams) *Bookmark {
 	ksuid := ksuid.New()
