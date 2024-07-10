@@ -31,3 +31,7 @@ func (c *Client) Delete(ctx context.Context, query string, data ...any) error {
 	_, err := c.svc.ExecContext(ctx, query, data...)
 	return err
 }
+
+func (c *Client) First(ctx context.Context, query string, args ...interface{}) *sql.Row {
+	return c.svc.QueryRowContext(ctx, query, args...)
+}

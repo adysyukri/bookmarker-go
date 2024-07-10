@@ -23,3 +23,9 @@ templ BookmarkCard(bm *Bookmark) {
 		<p><strong>Pages Read: </strong>{ fmt.Sprint(bm.Read) }</p>
 	}
 }
+
+templ BookmarkCounter(total int, attrs templ.Attributes) {
+	<div id="bookmark-counter" class="mb-4" {attrs...}>
+		Total Bookmarks: <span id="bookmark-count">{ fmt.Sprint(total)}</span>
+	</div>
+}

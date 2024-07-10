@@ -9,6 +9,7 @@ import (
 
 	"github.com/adysyukri/bookemarker-go/internal/bookmark"
 	"github.com/adysyukri/bookemarker-go/pkg/sqlite"
+	"github.com/adysyukri/bookemarker-go/pkg/utils"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -56,14 +57,28 @@ func main() {
 			Read:   read,
 		}
 
-		t, err := svc.Add(r.Context(), bp)
+		t, tt, err := svc.Add(r.Context(), bp)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "error occurs: %s", err)
 			return
 		}
 
-		t.Render(r.Context(), w)
+		card, err := utils.ComponentToString(r.Context(), t)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "error occurs: %s", err)
+			return
+		}
+
+		count, err := utils.ComponentToString(r.Context(), tt)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "error occurs: %s", err)
+			return
+		}
+
+		fmt.Fprintf(w, "%s %s", card, count)
 	})
 
 	http.HandleFunc("DELETE /delete/{id}", func(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +103,7 @@ func main() {
 }
 
 func InitTable() error {
-//	defer db.Close()
+	//	defer db.Close()
 
 	sqlStmt := `
 	CREATE TABLE IF NOT EXISTS bookmarks (
@@ -102,6 +117,7 @@ func InitTable() error {
 
 	_, err := db.Exec(sqlStmt)
 	if err != nil {
+		log.Printf("Error executing init table statement: %v\nSQL: %s", err, sqlStmt)
 		return err
 	}
 

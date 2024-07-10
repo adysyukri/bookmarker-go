@@ -8,7 +8,7 @@ import (
 )
 
 func TestAdd(t *testing.T) {
-	_, err := svc.Add(context.Background(), &bookmark.BookmarkParams{
+	_, _, err := svc.Add(context.Background(), &bookmark.BookmarkParams{
 		Title:  "Title1",
 		Author: "Auhtor1",
 		Total:  20,

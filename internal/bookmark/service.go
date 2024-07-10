@@ -13,7 +13,7 @@ type service struct {
 }
 
 type Service interface {
-	Add(ctx context.Context, bp *BookmarkParams) (templ.Component, error)
+	Add(ctx context.Context, bp *BookmarkParams) (templ.Component, templ.Component, error)
 	Get(ctx context.Context) (templ.Component, error)
 	Delete(ctx context.Context, id string) error
 }
@@ -22,7 +22,7 @@ func NewService(db sqlite.Client) Service {
 	return &service{db}
 }
 
-func (s *service) Add(ctx context.Context, bp *BookmarkParams) (templ.Component, error) {
+func (s *service) Add(ctx context.Context, bp *BookmarkParams) (templ.Component, templ.Component, error) {
 	q := fmt.Sprintf(
 		"INSERT INTO %s (id, title, author, total, read, created_at) VALUES (?, ?, ?, ?, ?, ?);",
 		BookmarkTableName,
@@ -40,10 +40,26 @@ func (s *service) Add(ctx context.Context, bp *BookmarkParams) (templ.Component,
 
 	err := s.db.Add(ctx, q, data...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return BookmarkCard(bm), nil
+	count, err := getCount(ctx, s.db)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return BookmarkCard(bm), BookmarkCounter(count, templ.Attributes{"hx-swap-oob": true}), nil
+}
+
+func getCount(ctx context.Context, db sqlite.Client) (int, error) {
+	q := fmt.Sprintf("SELECT COUNT(*) FROM %s;", BookmarkTableName)
+	row := db.First(ctx, q)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func (s *service) Get(ctx context.Context) (templ.Component, error) {
@@ -82,7 +98,11 @@ func (s *service) Get(ctx context.Context) (templ.Component, error) {
 		return nil, err
 	}
 
-	return Home(bml), nil
+	count, err := getCount(ctx, s.db)
+	if err != nil {
+		return nil, err
+	}
+	return Home(bml, count), nil
 }
 
 func (s *service) Delete(ctx context.Context, id string) error {

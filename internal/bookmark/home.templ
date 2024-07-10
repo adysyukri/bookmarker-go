@@ -20,11 +20,12 @@ var clickFunc = `() => {
 	read = null
 }`
 
-templ Home(bml BookmarkList) {
+templ Home(bml BookmarkList, total int) {
 	@layout.Base() {
 		<div class="container mx-auto flex justify-between py-8">
 			<!-- Left Column (Navigation) -->
 			<nav class="w-1/4 bg-gray-200 p-4">
+				@BookmarkCounter(total, templ.Attributes{})
 				@elem.Modal("Add", "Add New Book") {
 					<form
 						x-data={ homeData }
@@ -51,5 +52,17 @@ templ Home(bml BookmarkList) {
 				}
 			</main>
 		</div>
+		<script>
+            document.addEventListener("htmx:configRequest", function(event) {
+                if (event.detail.elt.id === "bookmark-form") {
+                    event.detail.headers['HX-Trigger'] = 'bookmarkAdded';
+                }
+            });
+
+            document.addEventListener("bookmarkAdded", function(event) {
+                const count = event.detail.value;
+                document.getElementById("bookmark-count").textContent = count;
+            });
+        </script>
 	}
 }
