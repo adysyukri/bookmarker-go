@@ -20,17 +20,14 @@ const keyspace string = "book"
 var s, _ = gocqlx.WrapSession(NewSession("localhost"))
 
 func main() {
-	// defer db.Close()
-
-	// dbClient := sqlite.NewClient(db)
-	// svc := bookmark.NewService(*dbClient)
-
 	defer s.Close()
 
-	s.ExecStmt(fmt.Sprintf(`DROP KEYSPACE IF EXISTS %s;`, keyspace))
-	s.ExecStmt(fmt.Sprintf(`CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = {'class' : 'NetworkTopologyStrategy', 'replication_factor' : 1};`, keyspace))
+	_, err := CreateKeyspace(keyspace)
+	if err != nil {
+		log.Fatalln("error create keyspace: ", err)
+	}
 
-	err := InitTable()
+	err = InitTable()
 	if err != nil {
 		log.Fatalln("error init table: ", err)
 	}
@@ -39,7 +36,7 @@ func main() {
 	svc := bookmark.NewScyllaService(*dbClient)
 
 	http.HandleFunc("GET /home", func(w http.ResponseWriter, r *http.Request) {
-		t, err := svc.Get(r.Context(), s)
+		t, err := svc.Get(r.Context())
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "error occurs: %s", err)
@@ -126,14 +123,21 @@ func InitTable() error {
 	return nil
 }
 
-// func CreateKeyspace(keyspace string) error {
-// 	s.ExecStmt(fmt.Sprintf(`DROP KEYSPACE IF EXISTS %#v;`, keyspace))
-// 	s.ExecStmt(fmt.Sprintf(`CREATE KEYSPACE IF NOT EXISTS %#v WITH REPLICATION = {'class' : 'NetworkTopologyStrategy', 'replication_factor' : 1};`, keyspace))
-// 	return nil
-// }
+func CreateKeyspace(keyspace string) (gocql.KeyspaceMetadata, error) {
+	s.ExecStmt(fmt.Sprintf(`CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3};`, keyspace))
+	ksmetadata, err := s.KeyspaceMetadata(keyspace)
+	if err != nil {
+		log.Fatalln("error create session: ", err)
+	}
+	fmt.Println("Keyspace created successfully")
+
+	return *ksmetadata, nil
+}
 
 func NewSession(hosts ...string) (*gocql.Session, error) {
 	cluster := gocql.NewCluster(hosts...)
+	cluster.Consistency = gocql.All
+	cluster.PoolConfig.HostSelectionPolicy = gocql.TokenAwareHostPolicy(gocql.RoundRobinHostPolicy())
 	session, err := cluster.CreateSession()
 	if err != nil {
 		log.Fatalln("error create session: ", err)
