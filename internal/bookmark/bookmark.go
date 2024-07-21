@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	BookmarkTableName = "bookmarks"
+	BookmarkTableName = "book.bookmarks"
 )
 
 // table: bookmarks

@@ -1,0 +1,16 @@
+services:
+  bookmark-go:
+    image: scylladb/scylla:latest
+    container_name: bookmark-go
+    ports:
+      - 9042:9042
+
+  bookmark-go2:
+    image: scylladb/scylla:latest
+    container_name: bookmark-go2
+    command: --seeds=bookmark-go
+
+  bookmark-go3:
+    image: scylladb/scylla:latest
+    container_name: bookmark-go3
+    command: --seeds=bookmark-go
