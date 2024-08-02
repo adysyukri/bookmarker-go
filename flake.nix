@@ -2,7 +2,7 @@
   description = "Dev environment";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/release-24.05";
   };
 
   outputs = { self, nixpkgs }:
@@ -23,7 +23,7 @@
         default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
             go_1_22
-            nodejs_21
+            nodejs_22
           ];
 
           shellHook = ''
