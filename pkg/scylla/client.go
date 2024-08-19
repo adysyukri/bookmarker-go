@@ -3,8 +3,8 @@ package scylla
 import (
 	"context"
 
-	"github.com/scylladb/gocqlx/v2"
-	"github.com/scylladb/gocqlx/v2/qb"
+	"github.com/scylladb/gocqlx/v3"
+	"github.com/scylladb/gocqlx/v3/qb"
 )
 
 type Client struct {
@@ -18,7 +18,6 @@ func NewClient(session *gocqlx.Session) *Client {
 func (c *Client) Insert(ctx context.Context, qb qb.Builder, data ...any) error {
 	// q := c.session.Query(table.Insert()).Bind(data...).WithContext(ctx)
 	err := c.session.Query(qb.ToCql()).WithContext(ctx).Bind(data...).ExecRelease()
-	// err := q.ExecRelease()
 	return err
 }
 
@@ -30,6 +29,11 @@ func (c *Client) Select(ctx context.Context, qb qb.Builder, data ...any) (*gocql
 }
 
 func (c *Client) Delete(ctx context.Context, qb qb.Builder, data ...any) error {
+	err := c.session.Query(qb.ToCql()).WithContext(ctx).Bind(data...).ExecRelease()
+	return err
+}
+
+func (c *Client) Update(ctx context.Context, qb qb.Builder, data ...any) error {
 	err := c.session.Query(qb.ToCql()).WithContext(ctx).Bind(data...).ExecRelease()
 	return err
 }

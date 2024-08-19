@@ -5,28 +5,42 @@ import (
 	"fmt"
 
 	"github.com/a-h/templ"
-	"github.com/adysyukri/bookemarker-go/pkg/sqlite"
+	"github.com/adysyukri/bookemarker-go/pkg/scylla"
+	"github.com/scylladb/gocqlx/v3/qb"
+	"github.com/scylladb/gocqlx/v3/table"
+)
+
+const (
+	Keyspace = "book"
 )
 
 type service struct {
-	db sqlite.Client
+	db scylla.Client
 }
 
 type Service interface {
 	Add(ctx context.Context, bp *BookmarkParams) (templ.Component, error)
 	Get(ctx context.Context) (templ.Component, error)
 	Delete(ctx context.Context, id string) error
+	Update(ctx context.Context, id string, bp *BookmarkParams) (templ.Component, error)
 }
 
-func NewService(db sqlite.Client) Service {
+func NewService(db scylla.Client) Service {
 	return &service{db}
 }
 
+var bookmarkTable = table.New(
+	table.Metadata{
+		Name:    fmt.Sprintf("%s.%s", Keyspace, BookmarkTableName),
+		Columns: []string{"id", "title", "author", "total", "read", "created_at"},
+		PartKey: []string{"id"},
+		SortKey: []string{"created_at"},
+	},
+)
+
 func (s *service) Add(ctx context.Context, bp *BookmarkParams) (templ.Component, error) {
-	q := fmt.Sprintf(
-		"INSERT INTO %s (id, title, author, total, read, created_at) VALUES (?, ?, ?, ?, ?, ?);",
-		BookmarkTableName,
-	)
+	//INSERT INTO table (column1, column2, ...) VALUES (value1, value2, ...)
+	q := qb.Insert(bookmarkTable.Name()).Columns(bookmarkTable.Metadata().Columns...)
 
 	bm := NewBookMark(bp)
 	data := []any{
@@ -37,8 +51,7 @@ func (s *service) Add(ctx context.Context, bp *BookmarkParams) (templ.Component,
 		bm.Read,
 		bm.CreatedAt,
 	}
-
-	err := s.db.Add(ctx, q, data...)
+	err := s.db.Insert(ctx, q, data...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,49 +60,50 @@ func (s *service) Add(ctx context.Context, bp *BookmarkParams) (templ.Component,
 }
 
 func (s *service) Get(ctx context.Context) (templ.Component, error) {
-	q := fmt.Sprintf(
-		"SELECT id, title, author, total, read, created_at FROM %s;",
-		BookmarkTableName,
-	)
-
-	rows, err := s.db.Get(ctx, q)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+	//SELECT column1, column2, ... FROM table
 
 	var bml BookmarkList
 
-	for rows.Next() {
+	q := qb.Select(bookmarkTable.Name()).Columns(bookmarkTable.Metadata().Columns...)
+
+	iter, err := s.db.Select(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+	defer iter.Close()
+
+	for {
 		bm := new(Bookmark)
 
-		err := rows.Scan(
+		if !iter.Scan(
 			&bm.ID,
 			&bm.Title,
 			&bm.Author,
 			&bm.Total,
 			&bm.Read,
 			&bm.CreatedAt,
-		)
-		if err != nil {
-			return nil, err
+		) {
+			break
 		}
-
 		bml = append(bml, bm)
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
+	// if err := iter.Select(&bml); err != nil {
+	// 	return nil, err
+	// }
 
 	return Home(bml), nil
 }
 
 func (s *service) Delete(ctx context.Context, id string) error {
-	q := fmt.Sprintf(
-		"DELETE FROM %s WHERE id = ?;",
-		BookmarkTableName,
-	)
-
+	// DELETE FROM book.bookmarks WHERE id = ?;
+	q := qb.Delete(bookmarkTable.Name()).Where(qb.Eq("id"))
 	return s.db.Delete(ctx, q, id)
+}
+
+func (s *service) Update(ctx context.Context, id string, bp *BookmarkParams) (templ.Component, error) {
+	// UPDATE FROM book.bookmarks SET column1 = ?, column2 = ? WHERE id = ?;
+	q := qb.Update(bookmarkTable.Name()).Set(bookmarkTable.Metadata().Columns...).Where(qb.Eq("id"))
+	err := s.db.Update(ctx, q, id)
+	return nil, err
 }

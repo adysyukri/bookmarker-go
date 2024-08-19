@@ -9,37 +9,42 @@ import (
 	"github.com/adysyukri/bookemarker-go/internal/bookmark"
 	"github.com/adysyukri/bookemarker-go/pkg/scylla"
 	"github.com/gocql/gocql"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/scylladb/gocqlx/v2"
+	"github.com/scylladb/gocqlx/v3"
 )
 
 // var db, _ = sql.Open("sqlite3", "./tmp/db.db")
 
-const keyspace string = "book"
+// const Keyspace string = "book"
 
 var s, _ = gocqlx.WrapSession(NewSession("localhost"))
 
 func main() {
 	defer s.Close()
 
-	_, err := CreateKeyspace(keyspace)
-	if err != nil {
+	if _, err := CreateKeyspace(bookmark.Keyspace); err != nil {
 		log.Fatalln("error create keyspace: ", err)
 	}
 
-	err = InitTable()
-	if err != nil {
-		log.Fatalln("error init table: ", err)
+	if err := InitTable(); err != nil {
+		log.Fatalln("error create table: ", err)
 	}
 
 	dbClient := scylla.NewClient(&s)
-	svc := bookmark.NewScyllaService(*dbClient)
+	svc := bookmark.NewService(*dbClient)
+
+	// if err := svc.CreateKeyspace(); err != nil {
+	// 	log.Fatalln("error create keyspace: ", err)
+	// }
+
+	// if err := svc.CreateTable(); err != nil {
+	// 	log.Fatalln("error create table: ", err)
+	// }
 
 	http.HandleFunc("GET /home", func(w http.ResponseWriter, r *http.Request) {
 		t, err := svc.Get(r.Context())
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "error occurs: %s", err)
+			fmt.Fprintf(w, "get error occurs: %s", err)
 			return
 		}
 
@@ -50,14 +55,14 @@ func main() {
 		total, err := strconv.Atoi(r.FormValue("total"))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(w, "error occurs: %s", err)
+			fmt.Fprintf(w, "convert error occurs: %s", err)
 			return
 		}
 
 		read, err := strconv.Atoi(r.FormValue("read"))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(w, "error occurs: %s", err)
+			fmt.Fprintf(w, "convert error occurs: %s", err)
 			return
 		}
 
@@ -71,7 +76,7 @@ func main() {
 		t, err := svc.Add(r.Context(), bp)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "error occurs: %s", err)
+			fmt.Fprintf(w, "add service error occurs: %s", err)
 			return
 		}
 
@@ -84,11 +89,15 @@ func main() {
 		err := svc.Delete(r.Context(), id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "error occurs: %s", err)
+			fmt.Fprintf(w, "delete error occurs: %s", err)
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
+	})
+
+	http.HandleFunc("PUT /update/{id}", func(w http.ResponseWriter, r *http.Request) {
+		// id := r.PathValue("id")
 	})
 
 	http.Handle("/static/",
@@ -123,24 +132,26 @@ func InitTable() error {
 	return nil
 }
 
-func CreateKeyspace(keyspace string) (gocql.KeyspaceMetadata, error) {
-	s.ExecStmt(fmt.Sprintf(`CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3};`, keyspace))
-	ksmetadata, err := s.KeyspaceMetadata(keyspace)
+func CreateKeyspace(keyspace string) (*gocql.KeyspaceMetadata, error) {
+	err := s.ExecStmt(fmt.Sprintf(`CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3};`, keyspace))
 	if err != nil {
-		log.Fatalln("error create session: ", err)
+		return nil, err
 	}
+	ksmetadata, _ := s.KeyspaceMetadata(keyspace)
 	fmt.Println("Keyspace created successfully")
 
-	return *ksmetadata, nil
+	return ksmetadata, nil
 }
 
 func NewSession(hosts ...string) (*gocql.Session, error) {
 	cluster := gocql.NewCluster(hosts...)
+	// cluster.CQLVersion = "4"
 	cluster.Consistency = gocql.All
 	cluster.PoolConfig.HostSelectionPolicy = gocql.TokenAwareHostPolicy(gocql.RoundRobinHostPolicy())
 	session, err := cluster.CreateSession()
 	if err != nil {
 		log.Fatalln("error create session: ", err)
 	}
+	fmt.Println("session created")
 	return session, nil
 }

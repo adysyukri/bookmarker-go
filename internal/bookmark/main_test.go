@@ -1,40 +1,45 @@
 package bookmark_test
 
 import (
-	"database/sql"
 	"log"
 	"os"
 	"testing"
 
 	"github.com/adysyukri/bookemarker-go/internal/bookmark"
-	"github.com/adysyukri/bookemarker-go/pkg/sqlite"
-
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/adysyukri/bookemarker-go/pkg/scylla"
+	"github.com/scylladb/gocqlx/v3"
+	"github.com/scylladb/gocqlx/v3/gocqlxtest"
 )
 
-var dbClient *sqlite.Client
+var dbClient *scylla.Client
 var svc bookmark.Service
+var session gocqlx.Session
 
 func TestMain(m *testing.M) {
-	db, _ := sql.Open("sqlite3", "../../tmp/db_test.db")
-	defer db.Close()
+	cluster := gocqlxtest.CreateCluster()
+	session, _ = gocqlx.WrapSession(cluster.CreateSession())
+	defer session.Close()
 
-	dbClient = sqlite.NewClient(db)
+	dbClient = scylla.NewClient(&session)
 	svc = bookmark.NewService(*dbClient)
 
-	sqlStmt := `
-	CREATE TABLE IF NOT EXISTS bookmarks (
-		id TEXT PRIMARY KEY,
-		title TEXT,
-		author TEXT,
-		total INTEGER,
-		read INTEGER,
-		created_at DATETIME
-	);`
+	cqlStmt := `
+	CREATE TABLE IF NOT EXISTS testing.bookmarkstest (
+		id text,
+		title text,
+		author text,
+		total int,
+		read int,
+		created_at timestamp,
+		PRIMARY KEY(id, created_at))
+	WITH CLUSTERING ORDER BY (created_at DESC);`
 
-	_, err := db.Exec(sqlStmt)
-	if err != nil {
-		log.Fatalln("error create table")
+	if err := gocqlxtest.CreateKeyspace(cluster, "testing"); err != nil {
+		log.Fatalln("error create keyspace: ", err)
+	}
+
+	if err := session.ExecStmt(cqlStmt); err != nil {
+		log.Fatalln("error create table: ", err)
 	}
 
 	os.Exit(m.Run())
