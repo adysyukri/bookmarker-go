@@ -11,9 +11,13 @@ type service struct {
 	db cockroachdb.Client
 }
 
-type Service interface{}
+type servicer interface {
+	Add(ctx context.Context, bp *BookmarkParams) (*Bookmark, error)
+	Get(ctx context.Context) (BookmarkList, error)
+	Delete(ctx context.Context, id string) error
+}
 
-func NewService(db cockroachdb.Client) Service {
+func newService(db cockroachdb.Client) servicer {
 	return &service{db}
 }
 

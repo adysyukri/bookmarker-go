@@ -1,0 +1,55 @@
+package bookmarks
+
+import (
+	"github.com/adysyukri/bookemarker-go/templates/elem"
+	"github.com/adysyukri/bookemarker-go/templates/layout"
+)
+
+var homeData = `{
+	title: "",
+	author: "",
+	total: null,
+	read: null
+}`
+
+var clickFunc = `() => {
+	modalOpen = false
+	title = ""
+	author = ""
+	total = null
+	read = null
+}`
+
+templ Home(bml BookmarkList) {
+	@layout.Base() {
+		<div class="container mx-auto flex justify-between py-8">
+			<!-- Left Column (Navigation) -->
+			<nav class="w-1/4 bg-gray-200 p-4">
+				@elem.Modal("Add", "Add New Book") {
+					<form
+						x-data={ homeData }
+						hx-post="/add"
+						hx-target="main"
+						hx-swap="beforeend"
+						hx-on::after-request="this.reset()"
+					>
+						@elem.Input("text", "Book Title", "title")
+						@elem.Input("text", "Book Author", "author")
+						@elem.Input("number", "Pages Total", "total")
+						@elem.Input("number", "Pages Read", "read")
+						@elem.Button(elem.BtnPrimary, "Save", "submit", templ.Attributes{
+							"@click": "modalOpen=false",
+						})
+						@elem.Button(elem.BtnNeutral, "Close", "button", templ.Attributes{"@click": clickFunc})
+					</form>
+				}
+			</nav>
+			<!-- Right Column (Content) -->
+			<main class="w-3/4 bg-white p-4 flex-col">
+				for _, bm := range bml {
+					@BookmarkCard(bm)
+				}
+			</main>
+		</div>
+	}
+}

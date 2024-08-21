@@ -1,0 +1,25 @@
+package bookmarks
+
+import (
+	"fmt"
+	"github.com/adysyukri/bookemarker-go/templates/elem"
+	"github.com/adysyukri/bookemarker-go/templates/elem/icons"
+)
+
+templ BookmarkCard(bm *Bookmark) {
+	@elem.Card(bm.Title, elem.Button(elem.BtnError, "Delete", "submit", templ.Attributes{
+		"hx-delete": fmt.Sprintf("/delete/%s", bm.ID),
+		"hx-swap":   "outerHTML",
+		"hx-target": fmt.Sprintf("#card-%s", bm.ID),
+	}), bm.ID, icons.TrashBin(templ.Attributes{
+		"hx-delete":  fmt.Sprintf("/delete/%s", bm.ID),
+		"hx-swap":    "outerHTML",
+		"hx-target":  fmt.Sprintf("#card-%s", bm.ID),
+		"hx-trigger": "click",
+		"class":      "hover:cursor-pointer",
+	})) {
+		<p><strong>Author: </strong>{ bm.Author }</p>
+		<p><strong>Total Page: </strong>{ fmt.Sprint(bm.Total) }</p>
+		<p><strong>Pages Read: </strong>{ fmt.Sprint(bm.Read) }</p>
+	}
+}
