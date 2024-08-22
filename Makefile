@@ -5,4 +5,8 @@ css:
 
 run: css-watch
 	templ generate && air
+
+init-table:
+	go run cmd/cockroachdb/main.go
+	
 PHONY: run-api css-watch run css
