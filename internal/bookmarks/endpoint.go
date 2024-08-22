@@ -16,7 +16,7 @@ type API interface {
 	// Page endpoints
 	Home(w http.ResponseWriter, r *http.Request)
 	Add(w http.ResponseWriter, r *http.Request)
-
+	Delete(w http.ResponseWriter, r *http.Request)
 	// API endpoints
 	// ...
 }
@@ -70,4 +70,17 @@ func (e *endpoint) Add(w http.ResponseWriter, r *http.Request) {
 	}
 
 	BookmarkCard(res).Render(r.Context(), w)
+}
+
+// DELETE /delete/{id}
+func (e *endpoint) Delete(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	err := e.svc.Delete(r.Context(), id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "error occurs: %s", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
