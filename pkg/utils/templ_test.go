@@ -22,3 +22,23 @@ func TestComponentToString(t *testing.T) {
 		t.Error("error ComponentToString string empty")
 	}
 }
+
+func TestMapToJSObject(t *testing.T) {
+	var cardData = []map[string]string{
+		{
+			"label": "Title",
+			"value": "title1",
+		},
+		{
+			"label": "Author",
+			"value": "author1",
+		},
+	}
+	expectedValue := `[{Title:"title1"},{Author:"author1"}]`
+
+	result := utils.MapToJSObject(cardData)
+
+	if expectedValue != result {
+		t.Errorf("expected\n '%s'\nbut got\n '%s'\n", expectedValue, result)
+	}
+}

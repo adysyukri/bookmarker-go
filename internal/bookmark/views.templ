@@ -1,10 +1,14 @@
 package bookmark
 
 import (
-	"github.com/adysyukri/bookemarker-go/templates/elem"
 	"fmt"
+	"github.com/adysyukri/bookemarker-go/templates/elem"
 	"github.com/adysyukri/bookemarker-go/templates/elem/icons"
 )
+
+func bookmarkCardData(bm *Bookmark) string {
+
+}
 
 templ BookmarkCard(bm *Bookmark) {
 	@elem.Card(bm.Title, elem.Button(elem.BtnError, "Delete", "submit", templ.Attributes{

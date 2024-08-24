@@ -2,7 +2,22 @@ package elem
 
 import "fmt"
 
-templ Card(title string, btn templ.Component, id string, icon templ.Component) {
+var homeData = `{
+	title: "",
+	author: "",
+	total: null,
+	read: null
+}`
+
+var clickFunc = `() => {
+	modalOpen = false
+	title = ""
+	author = ""
+	total = null
+	read = null
+}`
+
+templ Card(title string, btn templ.Component, id string, icon templ.Component, cardData string) {
 	<div id={ fmt.Sprintf("card-%s", id) } class="max-w-sm bg-white border rounded-lg shadow-sm p-7 border-neutral-200/60">
 		<div class="flex justify-between">
 			<a href="#_" class="block mb-3">
@@ -14,5 +29,23 @@ templ Card(title string, btn templ.Component, id string, icon templ.Component) {
 			{ children... }
 		</div>
 		@btn
+		@Modal("Update", "Update Book") {
+			<form
+				x-data={ homeData }
+				hx-put={ fmt.Sprintf("/update/%s", id) }
+				hx-target="main"
+				hx-swap="beforeend"
+				hx-on::after-request="this.reset()"
+			>
+				@Input("text", "Book Title", "title")
+				@Input("text", "Book Author", "author")
+				@Input("number", "Pages Total", "total")
+				@Input("number", "Pages Read", "read")
+				@Button(BtnPrimary, "Save", "submit", templ.Attributes{
+					"@click": "modalOpen=false",
+				})
+				@Button(BtnNeutral, "Close", "button", templ.Attributes{"@click": clickFunc})
+			</form>
+		}
 	</div>
 }

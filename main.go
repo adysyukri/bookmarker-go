@@ -12,10 +12,6 @@ import (
 	"github.com/scylladb/gocqlx/v3"
 )
 
-// var db, _ = sql.Open("sqlite3", "./tmp/db.db")
-
-// const Keyspace string = "book"
-
 var s, _ = gocqlx.WrapSession(NewSession("localhost"))
 
 func main() {
@@ -31,14 +27,6 @@ func main() {
 
 	dbClient := scylla.NewClient(&s)
 	svc := bookmark.NewService(*dbClient)
-
-	// if err := svc.CreateKeyspace(); err != nil {
-	// 	log.Fatalln("error create keyspace: ", err)
-	// }
-
-	// if err := svc.CreateTable(); err != nil {
-	// 	log.Fatalln("error create table: ", err)
-	// }
 
 	http.HandleFunc("GET /home", func(w http.ResponseWriter, r *http.Request) {
 		t, err := svc.Get(r.Context())
@@ -97,7 +85,38 @@ func main() {
 	})
 
 	http.HandleFunc("PUT /update/{id}", func(w http.ResponseWriter, r *http.Request) {
-		// id := r.PathValue("id")
+		id := r.PathValue("id")
+		fmt.Printf("update id: %v", id)
+
+		total, err := strconv.Atoi(r.FormValue("total"))
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "convert error occurs: %s", err)
+			return
+		}
+
+		read, err := strconv.Atoi(r.FormValue("read"))
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "convert error occurs: %s", err)
+			return
+		}
+
+		bp := &bookmark.BookmarkParams{
+			Title:  r.FormValue("title"),
+			Author: r.FormValue("author"),
+			Total:  total,
+			Read:   read,
+		}
+
+		t, err := svc.Update(r.Context(), id, bp)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "update error occurs: %s", err)
+			return
+		}
+
+		t.Render(r.Context(), w)
 	})
 
 	http.Handle("/static/",
@@ -133,11 +152,15 @@ func InitTable() error {
 }
 
 func CreateKeyspace(keyspace string) (*gocql.KeyspaceMetadata, error) {
-	err := s.ExecStmt(fmt.Sprintf(`CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3};`, keyspace))
+	err := s.ExecStmt(fmt.Sprintf(`CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = {'class' : 'NetworkTopologyStrategy', 'replication_factor' : 3};`, keyspace))
 	if err != nil {
 		return nil, err
 	}
-	ksmetadata, _ := s.KeyspaceMetadata(keyspace)
+
+	ksmetadata, err := s.KeyspaceMetadata(keyspace)
+	if err != nil {
+		return ksmetadata, err
+	}
 	fmt.Println("Keyspace created successfully")
 
 	return ksmetadata, nil
