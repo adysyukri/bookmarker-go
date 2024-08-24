@@ -12,13 +12,13 @@ const (
 
 // table: bookmarks
 type Bookmark struct {
-	ID     string `json:"id,omitempty"`
-	Title  string `json:"title,omitempty"`
-	Author string `json:"author,omitempty"`
-	Total  int    `json:"total,omitempty"`
-	Read   int    `json:"read,omitempty"`
+	ID     string `db:"id,omitempty"`
+	Title  string `db:"title,omitempty"`
+	Author string `db:"author,omitempty"`
+	Total  int    `db:"total,omitempty"`
+	Read   int    `db:"read,omitempty"`
 
-	CreatedAt time.Time `json:"created_at,omitempty"`
+	CreatedAt time.Time `db:"created_at,omitempty"`
 }
 
 func NewBookMark(bp *BookmarkParams) *Bookmark {

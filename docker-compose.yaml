@@ -1,0 +1,22 @@
+services:
+  bookmarker-go:
+    image: scylladb/scylla:5.2.0
+    container_name: bookmarker-go
+    ports:
+      - 9042:9042
+    command:
+      - --smp 1
+
+  bookmarker-go2:
+    image: scylladb/scylla:5.2.0
+    container_name: bookmarker-go2
+    command:
+      - --seeds=bookmarker-go
+      - --smp 1
+
+  bookmarker-go3:
+    image: scylladb/scylla:5.2.0
+    container_name: bookmarker-go3
+    command:
+      - --seeds=bookmarker-go
+      - --smp 1
