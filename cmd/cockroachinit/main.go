@@ -18,11 +18,12 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	_, err = conn.Exec(context.Background(), "DROP DATABASE bookmark_go;")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "drop database failed: %v\n", err)
-		os.Exit(1)
-	}
+	// uncomment if error init table
+	// _, err = conn.Exec(context.Background(), "DROP DATABASE bookmark_go;")
+	// if err != nil {
+	// 	fmt.Fprintf(os.Stderr, "drop database failed: %v\n", err)
+	// 	os.Exit(1)
+	// }
 
 	_, err = conn.Exec(context.Background(), "CREATE DATABASE bookmark_go;")
 	if err != nil {
