@@ -9,7 +9,7 @@ run: css-watch
 init-table:
 	go run cmd/cockroachdb/main.go
 
-dev: css-watch
-	templ generate && air
+dev: 
+	air
 
 PHONY: run-api css-watch run css

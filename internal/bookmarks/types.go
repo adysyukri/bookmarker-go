@@ -10,6 +10,25 @@ const (
 	BookmarkTableName = "bookmarks"
 )
 
+// ++ views.templ variables
+
+var inputDefault = `{
+	title: "",
+	author: "",
+	total: null,
+	read: null
+}`
+
+var resetDefault = `() => {
+	modalOpen = false
+	title = ""
+	author = ""
+	total = null
+	read = null
+}`
+
+// -- views.templ variables
+
 // table: bookmarks
 type Bookmark struct {
 	ID     string `json:"id,omitempty"`
