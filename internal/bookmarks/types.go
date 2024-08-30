@@ -43,19 +43,33 @@ type Bookmark struct {
 func NewBookMark(bp *BookmarkParams) *Bookmark {
 	ksuid := ksuid.New()
 
-	return &Bookmark{
-		ID:        ksuid.String(),
-		Title:     bp.Title,
-		Author:    bp.Author,
-		Total:     bp.Total,
-		Read:      bp.Read,
-		CreatedAt: time.Now(),
+	createdAt := time.Now()
+
+	bp.ID = ksuid.String()
+
+	return MapBookmark(bp, &createdAt)
+}
+
+func MapBookmark(bp *BookmarkParams, createdAt *time.Time) *Bookmark {
+	bm := &Bookmark{
+		ID:     bp.ID,
+		Title:  bp.Title,
+		Author: bp.Author,
+		Total:  bp.Total,
+		Read:   bp.Read,
 	}
+
+	if createdAt != nil {
+		bm.CreatedAt = *createdAt
+	}
+
+	return bm
 }
 
 type BookmarkList []*Bookmark
 
 type BookmarkParams struct {
+	ID     string `json:"id,omitempty"`
 	Title  string `json:"title,omitempty"`
 	Author string `json:"author,omitempty"`
 	Total  int    `json:"total,omitempty"`

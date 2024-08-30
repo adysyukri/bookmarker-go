@@ -13,6 +13,7 @@ type service struct {
 
 type servicer interface {
 	Add(ctx context.Context, bp *BookmarkParams) (*Bookmark, error)
+	Update(ctx context.Context, bp *BookmarkParams) (*Bookmark, error)
 	Get(ctx context.Context) (BookmarkList, error)
 	Delete(ctx context.Context, id string) error
 }
@@ -36,6 +37,28 @@ func (s *service) Add(ctx context.Context, bp *BookmarkParams) (*Bookmark, error
 		bm.Total,
 		bm.Read,
 		bm.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return bm, nil
+}
+
+func (s *service) Update(ctx context.Context, bp *BookmarkParams) (*Bookmark, error) {
+	q := fmt.Sprintf(
+		"UPDATE %s SET title = $1, author = $2, total = $3, read = $4 WHERE id = $5;",
+		BookmarkTableName,
+	)
+
+	bm := MapBookmark(bp, nil)
+
+	err := s.db.Exec(ctx, q,
+		bm.Title,
+		bm.Author,
+		bm.Total,
+		bm.Read,
+		bm.ID,
 	)
 	if err != nil {
 		return nil, err

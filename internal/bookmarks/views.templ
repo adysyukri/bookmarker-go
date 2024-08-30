@@ -35,7 +35,13 @@ templ BookmarkCard(bm *Bookmark) {
 templ ModalInput(bm *Bookmark) {
 	<div class="modalinput">
 		@elem.ModalBody("Update") {
-			<form>
+			<form
+				hx-on="click"
+				hx-put={ fmt.Sprintf("/edit/%s", bm.ID) }
+				hx-target={ fmt.Sprintf("#card-%s", bm.ID) }
+				hx-swap="outerHTML"
+				hx-on::after-request="this.reset()"
+			>
 				@elem.Input("text", "Book Title", "title", bm.Title)
 				@elem.Input("text", "Book Author", "author", bm.Author)
 				@elem.Input("number", "Pages Total", "total", strconv.Itoa(bm.Total))

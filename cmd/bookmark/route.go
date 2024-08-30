@@ -13,6 +13,7 @@ func routes(dbClient cockroachdb.Client) {
 
 	http.HandleFunc("GET /home", bookmarkEp.Home)
 	http.HandleFunc("POST /add", bookmarkEp.Add)
+	http.HandleFunc("PUT /edit/{id}", bookmarkEp.Edit)
 	http.HandleFunc("DELETE /delete/{id}", bookmarkEp.Delete)
 
 	http.Handle("/static/",
