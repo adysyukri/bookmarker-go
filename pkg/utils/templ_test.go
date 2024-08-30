@@ -11,7 +11,7 @@ import (
 func TestComponentToString(t *testing.T) {
 	str, err := utils.ComponentToString(
 		context.Background(),
-		elem.Input("text", "LabelInput", "input1"),
+		elem.Input("text", "LabelInput", "input1", ""),
 	)
 
 	if err != nil {
