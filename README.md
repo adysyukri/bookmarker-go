@@ -22,7 +22,7 @@ docker exec -it cockroach1 ./cockroach --host=cockroach1:26357 init --insecure
 make init-table
 ```
 
-> If table initialization fail, and no `init table success!` logged, comment out line 22-26 of `cmd/cockroachinit/main.go`
+> If table initialization fail, and no `init table success!` logged, comment out line 22-26 of `cmd/cockroachinit/main.go` and rerun it again
 
 ---
 
