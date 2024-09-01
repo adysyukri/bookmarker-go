@@ -2,6 +2,28 @@
 
 [Browser bookmark](https://github.com/adysyukri/browser-bookmarking) project but with Go and backend DB instead of localStorage
 
+## Initialize DB
+
+#### Run docker compose
+
+```
+docker compose -f ./docker/docker-compose-cdb.yml
+```
+
+#### Init cockroachdb
+
+```
+docker exec -it cockroach1 ./cockroach --host=cockroach1:26357 init --insecure
+```
+
+#### Create DB and Table
+
+```
+make init-table
+```
+
+> If table initialization fail, and no `init table success!` logged, comment out line 22-26 of `cmd/cockroachinit/main.go`
+
 ---
 
 ## Run development server
