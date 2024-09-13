@@ -17,35 +17,21 @@ var clickFunc = `() => {
 	read = null
 }`
 
-templ Card(title string, btn templ.Component, id string, icon templ.Component, cardData string) {
+templ Card(title string, btn templ.Component, id string, icons ...templ.Component) {
 	<div id={ fmt.Sprintf("card-%s", id) } class="max-w-sm bg-white border rounded-lg shadow-sm p-7 border-neutral-200/60">
 		<div class="flex justify-between">
 			<a href="#_" class="block mb-3">
 				<h5 class="text-xl font-bold leading-none tracking-tight text-neutral-900">{ title }</h5>
 			</a>
-			@icon
+			<div class="flex">
+				for _, icon := range icons {
+					@icon
+				}
+			</div>
 		</div>
 		<div class="mb-4 text-neutral-500">
 			{ children... }
 		</div>
 		@btn
-		@Modal("Update", "Update Book") {
-			<form
-				x-data={ homeData }
-				hx-put={ fmt.Sprintf("/update/%s", id) }
-				hx-target="main"
-				hx-swap="beforeend"
-				hx-on::after-request="this.reset()"
-			>
-				@Input("text", "Book Title", "title")
-				@Input("text", "Book Author", "author")
-				@Input("number", "Pages Total", "total")
-				@Input("number", "Pages Read", "read")
-				@Button(BtnPrimary, "Save", "submit", templ.Attributes{
-					"@click": "modalOpen=false",
-				})
-				@Button(BtnNeutral, "Close", "button", templ.Attributes{"@click": clickFunc})
-			</form>
-		}
 	</div>
 }

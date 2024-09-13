@@ -17,11 +17,12 @@ var s, _ = gocqlx.WrapSession(NewSession("localhost"))
 func main() {
 	defer s.Close()
 
-	if _, err := CreateKeyspace(bookmark.Keyspace); err != nil {
+	_, err := CreateKeyspace("book")
+	if err != nil {
 		log.Fatalln("error create keyspace: ", err)
 	}
 
-	if err := InitTable(); err != nil {
+	if err := InitTable(bookmark.BookmarkTableName); err != nil {
 		log.Fatalln("error create table: ", err)
 	}
 
@@ -86,7 +87,6 @@ func main() {
 
 	http.HandleFunc("PUT /update/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
-		fmt.Printf("update id: %v", id)
 
 		total, err := strconv.Atoi(r.FormValue("total"))
 		if err != nil {
@@ -127,19 +127,18 @@ func main() {
 	http.ListenAndServe(":3000", nil)
 }
 
-func InitTable() error {
+func InitTable(tablename string) error {
 	//	defer db.Close()
 
-	cqlStmt := `
-	CREATE TABLE IF NOT EXISTS book.bookmarks (
-		id text,
-		title text,
-		author text,
-		total int,
-		read int,
-		created_at timestamp,
-		PRIMARY KEY(id, created_at))
-	WITH CLUSTERING ORDER BY (created_at DESC);`
+	cqlStmt := fmt.Sprintf(`
+		CREATE TABLE IF NOT EXISTS %s(
+			id text, 
+			title text, 
+			author text, 
+			total int, read int, 
+			created_at timestamp, 
+			PRIMARY KEY(id))
+		`, tablename)
 
 	err := s.ExecStmt(cqlStmt)
 	if err != nil {
@@ -168,13 +167,14 @@ func CreateKeyspace(keyspace string) (*gocql.KeyspaceMetadata, error) {
 
 func NewSession(hosts ...string) (*gocql.Session, error) {
 	cluster := gocql.NewCluster(hosts...)
-	// cluster.CQLVersion = "4"
-	cluster.Consistency = gocql.All
+	// cluster.Consistency = gocql.All
 	cluster.PoolConfig.HostSelectionPolicy = gocql.TokenAwareHostPolicy(gocql.RoundRobinHostPolicy())
+	cluster.Keyspace = "book"
 	session, err := cluster.CreateSession()
 	if err != nil {
 		log.Fatalln("error create session: ", err)
 	}
 	fmt.Println("session created")
+	session.SetPageSize(3)
 	return session, nil
 }

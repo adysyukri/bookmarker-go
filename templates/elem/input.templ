@@ -1,13 +1,13 @@
 package elem
 
-templ Input(inputType string, label string, name string, value ...string) {
+templ Input(inputType string, label string, name string, value string) {
 	<div class="w-full max-w-xs mx-auto">
 		<input
 			type={ inputType }
 			placeholder={ label }
 			name={ name }
-			if len(value) > 0 {
-				x-model={ value[0] }
+			if value != "" {
+				value={ value }
 			} else {
 				x-model={ name }
 			}

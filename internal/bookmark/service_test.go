@@ -18,6 +18,11 @@ func TestAdd(t *testing.T) {
 	if err != nil {
 		t.Errorf("error add: %s", err)
 	}
+
+	// rd, err := session.ContextQuery(context.Background(), "SELECT * FROM testing.bookmarktest", []string{}).Iter().RowData()
+	// if err != nil {
+	// 	t.Errorf("error select: %s", err)
+	// }
 }
 
 func TestDelete(t *testing.T) {
