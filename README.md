@@ -7,7 +7,7 @@
 #### Run docker compose
 
 ```
-docker compose -f ./docker/docker-compose-cdb.yml
+docker compose -f ./docker/docker-compose-cdb.yml up
 ```
 
 #### Init cockroachdb

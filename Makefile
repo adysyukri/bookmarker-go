@@ -7,7 +7,7 @@ run: css-watch
 	templ generate && air
 
 init-table:
-	go run cmd/cockroachdb/main.go
+	go run cmd/cockroachinit/main.go
 
 dev: 
 	air
