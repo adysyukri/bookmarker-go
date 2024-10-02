@@ -12,4 +12,7 @@ init-table:
 dev: 
 	air
 
+db-local:
+	docker compose -f ./docker/docker-compose-cdb.yml up -d
+
 PHONY: run-api css-watch run css
