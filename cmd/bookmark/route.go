@@ -11,9 +11,12 @@ import (
 func routes(dbClient cockroachdb.Client) {
 	bookmarkEp := bookmarks.NewAPI(dbClient)
 
-	http.HandleFunc("GET /home", bookmarkEp.Home)
-	http.HandleFunc("POST /add", bookmarkEp.Add)
-	http.HandleFunc("PUT /edit/{id}", bookmarkEp.Edit)
+	http.HandleFunc("GET /home", bookmarkEp.GomponentHome)
+	http.HandleFunc("POST /add", bookmarkEp.GomponentAdd)
+	http.HandleFunc("PUT /edit/{id}", bookmarkEp.GomponentEdit)
+	// http.HandleFunc("GET /home", bookmarkEp.Home)
+	// http.HandleFunc("POST /add", bookmarkEp.Add)
+	// http.HandleFunc("PUT /edit/{id}", bookmarkEp.Edit)
 	http.HandleFunc("DELETE /delete/{id}", bookmarkEp.Delete)
 
 	http.Handle("/static/",
