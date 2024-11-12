@@ -1,13 +1,5 @@
 package elem
 
-const (
-	BtnNeutral = "btn-neutral"
-	BtnPrimary = "btn-primary"
-	BtnError   = "btn-error"
-	BtnSuccess = "btn-success"
-	BtnWarning = "btn-warning"
-)
-
 templ Button(btnClass string, btnText string, btnType string, attrs templ.Attributes) {
 	switch btnClass {
 		case BtnNeutral:

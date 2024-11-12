@@ -1,15 +1,15 @@
 package icons
 
 import (
-	g "github.com/maragudk/gomponents"
-	h "github.com/maragudk/gomponents/html"
+	g "maragu.dev/gomponents"
+	"maragu.dev/gomponents/html"
 )
 
 func GTrashBin(attrs g.Group) g.Node {
-	return h.SVG(
+	return html.SVG(
 		g.Attr("xmlns", "http://www.w3.org/2000/svg"),
-		h.Width("25"),
-		h.Height("25"),
+		html.Width("25"),
+		html.Height("25"),
 		g.Attr("fill", "#F9476C"),
 		g.Attr("viewBox", "0 0 256 256"),
 		g.Map(attrs, func(attr g.Node) g.Node { return attr }),
