@@ -3,7 +3,6 @@ module github.com/adysyukri/bookemarker-go
 go 1.22.1
 
 require (
-	github.com/a-h/templ v0.2.793
 	github.com/georgysavva/scany/v2 v2.1.3
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/rosedblabs/rosedb/v2 v2.3.9

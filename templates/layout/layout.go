@@ -29,6 +29,9 @@ func Layout(children ...g.Node) g.Node {
 			html.Script(
 				html.Src("/static/js/htmx@1.9.11.min.js"),
 			),
+			html.Script(
+				html.Src("/static/js/surreal@1.3.2.js"),
+			),
 		},
 		Body: []g.Node{
 			html.Body(
