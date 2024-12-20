@@ -30,14 +30,14 @@ func NewAPI(db cockroachdb.Client) API {
 
 // GET /home (page)
 func (e *endpoint) Home(w http.ResponseWriter, r *http.Request) {
-	res, err := e.svc.Get(r.Context())
+	res, counter, err := e.svc.Get(r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "error occurs: %s", err)
 		return
 	}
 
-	Page(res).Render(w)
+	Page(res, counter).Render(w)
 }
 
 // POST /add (component)
@@ -63,14 +63,15 @@ func (e *endpoint) Add(w http.ResponseWriter, r *http.Request) {
 		Read:   read,
 	}
 
-	res, err := e.svc.Add(r.Context(), bp)
+	res, counter, err := e.svc.Add(r.Context(), bp)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "error occurs: %s", err)
 		return
 	}
 
-	GBookmarkCard(res).Render(w)
+	BookmarkCard(res).Render(w)
+	BookmarkCounter(counter).Render(w)
 }
 
 // POST /edit (component)
@@ -104,13 +105,13 @@ func (e *endpoint) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	GBookmarkCard(res).Render(w)
+	BookmarkCard(res).Render(w)
 }
 
 // DELETE /delete/{id}
 func (e *endpoint) Delete(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	err := e.svc.Delete(r.Context(), id)
+	counter, err := e.svc.Delete(r.Context(), id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "error occurs: %s", err)
@@ -118,4 +119,5 @@ func (e *endpoint) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	BookmarkCounter(counter).Render(w)
 }

@@ -5,7 +5,7 @@ import (
 	"maragu.dev/gomponents/html"
 )
 
-func GEditPencil(attrs g.Group) g.Node {
+func EditPencil(attrs g.Group) g.Node {
 	return html.SVG(
 		g.Attr("xmlns", "http://www.w3.org/2000/svg"),
 		html.Width("25"),

@@ -12,17 +12,17 @@ type service struct {
 }
 
 type servicer interface {
-	Add(ctx context.Context, bp *BookmarkParams) (*Bookmark, error)
+	Add(ctx context.Context, bp *BookmarkParams) (*Bookmark, int, error)
 	Update(ctx context.Context, bp *BookmarkParams) (*Bookmark, error)
-	Get(ctx context.Context) (BookmarkList, error)
-	Delete(ctx context.Context, id string) error
+	Get(ctx context.Context) (BookmarkList, int, error)
+	Delete(ctx context.Context, id string) (int, error)
 }
 
 func newService(db cockroachdb.Client) servicer {
 	return &service{db}
 }
 
-func (s *service) Add(ctx context.Context, bp *BookmarkParams) (*Bookmark, error) {
+func (s *service) Add(ctx context.Context, bp *BookmarkParams) (*Bookmark, int, error) {
 	q := fmt.Sprintf(
 		"INSERT INTO %s (id, title, author, total, read, created_at) VALUES ($1, $2, $3, $4, $5, $6);",
 		BookmarkTableName,
@@ -39,10 +39,30 @@ func (s *service) Add(ctx context.Context, bp *BookmarkParams) (*Bookmark, error
 		bm.CreatedAt,
 	)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return bm, nil
+	counter, err := s.counter(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return bm, counter, nil
+}
+
+func (s *service) counter(ctx context.Context) (int, error) {
+	q := fmt.Sprintf(
+		"SELECT count(*) from %s;",
+		BookmarkTableName,
+	)
+
+	var counter int
+
+	if err := s.db.QueryRow(ctx, q, &counter); err != nil {
+		return 0, err
+	}
+
+	return counter, nil
 }
 
 func (s *service) Update(ctx context.Context, bp *BookmarkParams) (*Bookmark, error) {
@@ -67,7 +87,7 @@ func (s *service) Update(ctx context.Context, bp *BookmarkParams) (*Bookmark, er
 	return bm, nil
 }
 
-func (s *service) Get(ctx context.Context) (BookmarkList, error) {
+func (s *service) Get(ctx context.Context) (BookmarkList, int, error) {
 	q := fmt.Sprintf(
 		"SELECT id, title, author, total, read, created_at FROM %s;",
 		BookmarkTableName,
@@ -75,16 +95,32 @@ func (s *service) Get(ctx context.Context) (BookmarkList, error) {
 
 	var bml BookmarkList
 
-	err := s.db.Query(ctx, q, &bml)
+	if err := s.db.Query(ctx, q, &bml); err != nil {
+		return nil, 0, err
+	}
 
-	return bml, err
+	counter, err := s.counter(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return bml, counter, err
 }
 
-func (s *service) Delete(ctx context.Context, id string) error {
+func (s *service) Delete(ctx context.Context, id string) (int, error) {
 	q := fmt.Sprintf(
 		"DELETE FROM %s WHERE id = $1;",
 		BookmarkTableName,
 	)
 
-	return s.db.Exec(ctx, q, id)
+	if err := s.db.Exec(ctx, q, id); err != nil {
+		return 0, err
+	}
+
+	counter, err := s.counter(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return counter, nil
 }
