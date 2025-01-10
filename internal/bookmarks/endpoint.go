@@ -15,6 +15,7 @@ type endpoint struct {
 type API interface {
 	// Page endpoints
 	Home(w http.ResponseWriter, r *http.Request)
+	Count(w http.ResponseWriter, r *http.Request)
 	Add(w http.ResponseWriter, r *http.Request)
 	Edit(w http.ResponseWriter, r *http.Request)
 	Delete(w http.ResponseWriter, r *http.Request)
@@ -37,7 +38,20 @@ func (e *endpoint) Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("get res: %#v\n", res)
 	Page(res, counter).Render(w)
+}
+
+// GET /count (component)
+func (e *endpoint) Count(w http.ResponseWriter, r *http.Request) {
+	res, err := e.svc.Counter(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "error occurs: %s", err)
+		return
+	}
+
+	BookmarkCounter(res).Render(w)
 }
 
 // POST /add (component)
@@ -63,15 +77,14 @@ func (e *endpoint) Add(w http.ResponseWriter, r *http.Request) {
 		Read:   read,
 	}
 
-	res, counter, err := e.svc.Add(r.Context(), bp)
+	res, err := e.svc.Add(r.Context(), bp)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "error occurs: %s", err)
 		return
 	}
 
-	BookmarkCard(res).Render(w)
-	BookmarkCounter(counter).Render(w)
+	ListBookmark(res).Render(w)
 }
 
 // POST /edit (component)
@@ -110,14 +123,15 @@ func (e *endpoint) Edit(w http.ResponseWriter, r *http.Request) {
 
 // DELETE /delete/{id}
 func (e *endpoint) Delete(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	counter, err := e.svc.Delete(r.Context(), id)
+	bp := &BookmarkParams{
+		ID: r.PathValue("id"),
+	}
+	res, err := e.svc.Delete(r.Context(), bp)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "error occurs: %s", err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	BookmarkCounter(counter).Render(w)
+	ListBookmark(res).Render(w)
 }

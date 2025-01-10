@@ -10,16 +10,11 @@ import (
 func Modal(btnText, modalTitle, id string, children ...g.Node) g.Node {
 	return html.Div(
 		g.If(btnText != "",
-			// html.Button(
-			// 	html.Script(g.Raw(fmt.Sprintf("me().on('click', ev => { me('#modal-%s').classAdd('is-active') })", id))),
-			// 	html.Class("button is-light"),
-			// 	g.Text(btnText),
-			// ),
 			Button(BtnNeutral, btnText, "button", g.Group{
 				html.Script(g.Rawf("me().on('click', ev => { me('#modal-%s').classAdd('is-active') })", id)),
-				// html.Style("position: fixed"),
 			}),
 		),
+		html.Script(g.Raw("me('body').on('keydown', ev => { if(ev.key === 'Escape') any('.modal').removeClass('is-active') })")),
 		html.Div(
 			html.ID(fmt.Sprintf("modal-%s", id)),
 			html.Class("modal"),

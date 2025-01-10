@@ -11,73 +11,88 @@ import (
 )
 
 func BookmarkCard(bm *Bookmark) g.Node {
-	return html.Div(
-		html.ID(fmt.Sprintf("card-%s", bm.ID)),
-		elem.Card(
-			bm.Title,
-			elem.Button(
-				elem.BtnError,
-				"Delete",
-				"submit",
+	return g.Group{
+		html.Div(
+			html.ID(fmt.Sprintf("card-%s", bm.ID)),
+			elem.Card(
+				bm.Title,
+				elem.Button(
+					elem.BtnError,
+					"Delete",
+					"submit",
+					g.Group{
+						g.Attr("hx-delete", fmt.Sprintf("/delete/%s", bm.ID)),
+						g.Attr("hx-confirm", fmt.Sprintf("Confirm delete %s?", bm.Title)),
+						g.Attr("hx-swap", "innerHTML swap:1s show:window:top"),
+						g.Attr("hx-target", "main"),
+						html.Script(g.Rawf(`me().on('htmx:afterRequest', async ev => {
+							if(ev.detail.successful) {
+								me('#card-%s').fadeOut(undefined, 1000, false)
+								me(ev).send('get-count')
+								await sleep(1000)
+							}
+						})`, bm.ID)),
+					},
+				),
 				g.Group{
-					g.Attr("hx-delete", fmt.Sprintf("/delete/%s", bm.ID)),
-					g.Attr("hx-confirm", fmt.Sprintf("Confirm delete %s?", bm.Title)),
-					g.Attr("hx-swap", "outerHTML swap:1s show:window:top"),
-					g.Attr("hx-target", fmt.Sprintf("#card-%s", bm.ID)),
-					html.Script(g.Rawf(`me().on('htmx:afterRequest', async ev => {
-						if(ev.detail.successful) {
-							me('#card-%s').fadeOut(undefined, 1000, false)
-							await sleep(1000)
-							me('.notification').textContent = '%s Deleted'
-							me('.notification').className = 'notification is-danger'
-							await sleep(3000)
-							me('.notification').textContent = '%s'
-							me('.notification').removeClass('is-danger')
-						}
-					})`, bm.ID, bm.Title, notificationContent)),
+					icons.TrashBin(g.Group{
+						g.Attr("hx-delete", fmt.Sprintf("/delete/%s", bm.ID)),
+						g.Attr("hx-confirm", fmt.Sprintf("Confirm delete %s?", bm.Title)),
+						g.Attr("hx-swap", "innerHTML swap:1s show:window:top"),
+						g.Attr("hx-target", "main"),
+						g.Attr("hx-trigger", "click"),
+						html.Class("hover:cursor-pointer"),
+						html.Script(g.Rawf(`me().on('htmx:afterRequest', async ev => {
+							if(ev.detail.successful) {
+								console.log(ev)
+								me('#card-%s').fadeOut(undefined, 1000, false)
+								me(ev).send('get-count')
+								await sleep(1000)
+							}
+						})`, bm.ID)),
+					}),
+					icons.EditPencil(g.Group{
+						html.Script(g.Rawf(`
+							me().on('click', ev => { me('#modal-%s').addClass('is-active') })
+						`, bm.ID)),
+						html.Class("hover:cursor-pointer"),
+					}),
 				},
+				html.Div(
+					html.Class("content"),
+					html.P(html.Strong(g.Text("Author: ")), g.Text(bm.Author)),
+					html.P(html.Strong(g.Text("Total Page: ")), g.Textf("%v", bm.Total)),
+					html.P(html.Strong(g.Text("Total Read: ")), g.Textf("%v", bm.Read)),
+				),
 			),
-			g.Group{
-				icons.TrashBin(g.Group{
-					g.Attr("hx-delete", fmt.Sprintf("/delete/%s", bm.ID)),
-					g.Attr("hx-confirm", fmt.Sprintf("Confirm delete %s?", bm.Title)),
-					g.Attr("hx-swap", "outerHTML swap:1s show:window:top"),
-					g.Attr("hx-target", fmt.Sprintf("#card-%s", bm.ID)),
-					g.Attr("hx-trigger", "click"),
-					html.Class("hover:cursor-pointer"),
-					html.Script(g.Rawf(`me().on('htmx:afterRequest', async ev => {
-						if(ev.detail.successful) {
-							me('#card-%s').fadeOut(undefined, 1000, false)
-							await sleep(1000)
-							me('.notification').textContent = '%s Deleted';
-							me('.notification').className = 'notification is-danger';
-							await sleep(3000);
-							me('.notification').textContent = '%s';
-							me('.notification').removeClass('is-danger');
-						}
-					})`, bm.ID, bm.Title, notificationContent)),
-				}),
-				icons.EditPencil(g.Group{
-					html.Script(g.Rawf("me().on('click', ev => { me('#modal-%s').addClass('is-active') })", bm.ID)),
-					html.Class("hover:cursor-pointer"),
-				}),
-			},
-			html.Div(
-				html.Class("content"),
-				html.P(html.Strong(g.Text("Author: ")), g.Text(bm.Author)),
-				html.P(html.Strong(g.Text("Total Page: ")), g.Textf("%v", bm.Total)),
-				html.P(html.Strong(g.Text("Total Read: ")), g.Textf("%v", bm.Read)),
-			),
+			UpdateModal(bm),
 		),
-		UpdateModal(bm),
-	)
+	}
+}
 
+func ListBookmark(bml BookmarkList) g.Node {
+	fmt.Printf("bml: %#v\n", bml)
+	return g.Group{
+		g.Iff(len(bml) == 0, func() g.Node {
+			return html.Div(
+				html.Class("notification"),
+				html.P(g.Text("No book to show")),
+			)
+		}),
+		g.Iff(len(bml) != 0, func() g.Node {
+			return g.Map(bml, func(bm *Bookmark) g.Node {
+				return BookmarkCard(bm)
+			})
+		}),
+	}
 }
 
 func BookmarkCounter(counter int) g.Node {
 	return html.Div(
 		html.ID("counter"),
-		g.Attr("hx-swap-oob", "true"),
+		g.Attr("hx-get", "/count"),
+		g.Attr("hx-trigger", "get-count from:body"),
+		g.Attr("hx-swap", "textContent"),
 		html.H3(
 			html.Class("subtitle is-6"),
 			g.Textf("book count: %v", counter),
@@ -88,11 +103,15 @@ func BookmarkCounter(counter int) g.Node {
 func UpdateModal(bm *Bookmark) g.Node {
 	return elem.Modal("", "Update", bm.ID, html.Form(
 		html.ID(fmt.Sprintf("modal-form-%s", bm.ID)),
-		g.Attr("hx-on", "click"),
 		g.Attr("hx-put", fmt.Sprintf("/edit/%s", bm.ID)),
 		g.Attr("hx-target", fmt.Sprintf("#card-%s", bm.ID)),
 		g.Attr("hx-swap", "outerHTML show:bottom"),
-		g.Attr("hx-on::after-request", "this.reset()"),
+
+		html.Script(g.Rawf(`me().on('htmx:afterRequest', async ev => {
+			if(ev.detail.successful) {
+				me(ev).reset()
+			}
+		})`)),
 
 		elem.Input("text", "Book Title", "title", bm.Title),
 		elem.Input("text", "Book Author", "author", bm.Author),

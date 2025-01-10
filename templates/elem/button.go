@@ -18,12 +18,12 @@ func Button(btnClass, btnText, btnType string, attrs g.Group) g.Node {
 	return html.Button(
 		html.Type(btnType),
 		c.Classes{
-			"button":                 true,
-			"":                       btnClass == BtnNeutral,
-			"is-primary is-outlined": btnClass == BtnPrimary,
-			"is-error is-outlined":   btnClass == BtnError,
-			"is-success is-outlined": btnClass == BtnSuccess,
-			"is-warning is-outlined": btnClass == BtnWarning,
+			"button is-outlined": true,
+			"is-dark":            btnClass == BtnNeutral,
+			"is-primary":         btnClass == BtnPrimary,
+			"is-danger":          btnClass == BtnError,
+			"is-success":         btnClass == BtnSuccess,
+			"is-warning":         btnClass == BtnWarning,
 		},
 		g.Map(attrs, func(attr g.Node) g.Node { return attr }),
 		g.Text(btnText),

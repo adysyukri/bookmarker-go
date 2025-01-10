@@ -7,10 +7,6 @@ import (
 	"maragu.dev/gomponents/html"
 )
 
-const (
-	notificationContent = "This bookmark is developed with gomponents, bulmacss, surrealjs & htmx"
-)
-
 func Page(bml BookmarkList, counter int) g.Node {
 	return layout.Layout(
 		html.Div(
@@ -21,20 +17,15 @@ func Page(bml BookmarkList, counter int) g.Node {
 				elem.Modal("Add", "Add New Book", "add", html.Form(
 					html.Class("box has-background-light"),
 					g.Attr("hx-post", "/add"),
-					g.Attr("hx-target", "#bookmark"),
-					g.Attr("hx-swap", "beforeend show:bottom"),
+					g.Attr("hx-target", "main"),
+					g.Attr("hx-swap", "innerHTML show:bottom"),
 
-					html.Script(g.Rawf(`me().on('htmx:afterRequest', async ev => {
-						if(ev.detail.successful) {
-							let title = ev.detail.requestConfig.parameters.title
+					html.Script(g.Raw(`
+						me().on('htmx:afterRequest', ev => { 
 							me(ev).reset()
-							me('.notification').textContent = 'Succesfully Added ' + title
-							me('.notification').className = 'notification is-success'
-							await sleep(3000)
-							me('.notification').textContent = '%s'
-							me('.notification').removeClass('is-success')
-						}
-					})`, notificationContent)),
+							me(ev).send('get-count')
+						})
+					`)),
 
 					elem.Input("text", "Book Title", "title", ""),
 					elem.Input("text", "Book Author", "author", ""),
@@ -66,27 +57,12 @@ func Page(bml BookmarkList, counter int) g.Node {
 						),
 					),
 				)),
-				html.Div(
-					html.ID("counter"),
-					html.H3(
-						html.Class("subtitle is-6"),
-						g.Textf("book count: %v", counter),
-					),
-				),
+				BookmarkCounter(counter),
 			),
 			// right column
 			html.Main(
 				html.Class("column"),
-				html.Div(
-					html.Class("notification"),
-					html.P(g.Text(notificationContent)),
-				),
-				html.Div(
-					html.ID("bookmark"),
-					g.Map(bml, func(bm *Bookmark) g.Node {
-						return BookmarkCard(bm)
-					}),
-				),
+				ListBookmark(bml),
 			),
 		),
 	)

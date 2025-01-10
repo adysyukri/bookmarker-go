@@ -24,7 +24,6 @@ func Layout(children ...g.Node) g.Node {
 		Body: []g.Node{
 			html.Body(
 				html.Class("section"),
-				html.Script(g.Raw("me().on('keydown', ev => { if(ev.key === 'Escape') any('.modal').removeClass('is-active') })")),
 				html.Div(
 					html.Class("container"),
 					g.Group(children),
