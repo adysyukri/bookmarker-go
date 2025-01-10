@@ -15,6 +15,7 @@ type endpoint struct {
 type API interface {
 	// Page endpoints
 	Home(w http.ResponseWriter, r *http.Request)
+	Count(w http.ResponseWriter, r *http.Request)
 	Add(w http.ResponseWriter, r *http.Request)
 	Edit(w http.ResponseWriter, r *http.Request)
 	Delete(w http.ResponseWriter, r *http.Request)
@@ -30,14 +31,27 @@ func NewAPI(db cockroachdb.Client) API {
 
 // GET /home (page)
 func (e *endpoint) Home(w http.ResponseWriter, r *http.Request) {
-	res, err := e.svc.Get(r.Context())
+	res, counter, err := e.svc.Get(r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "error occurs: %s", err)
 		return
 	}
 
-	Home(res).Render(r.Context(), w)
+	fmt.Printf("get res: %#v\n", res)
+	Page(res, counter).Render(w)
+}
+
+// GET /count (component)
+func (e *endpoint) Count(w http.ResponseWriter, r *http.Request) {
+	res, err := e.svc.Counter(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "error occurs: %s", err)
+		return
+	}
+
+	BookmarkCounter(res).Render(w)
 }
 
 // POST /add (component)
@@ -70,7 +84,7 @@ func (e *endpoint) Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	BookmarkCard(res).Render(r.Context(), w)
+	ListBookmark(res).Render(w)
 }
 
 // POST /edit (component)
@@ -104,18 +118,20 @@ func (e *endpoint) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	BookmarkCard(res).Render(r.Context(), w)
+	BookmarkCard(res).Render(w)
 }
 
 // DELETE /delete/{id}
 func (e *endpoint) Delete(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	err := e.svc.Delete(r.Context(), id)
+	bp := &BookmarkParams{
+		ID: r.PathValue("id"),
+	}
+	res, err := e.svc.Delete(r.Context(), bp)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "error occurs: %s", err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	ListBookmark(res).Render(w)
 }
